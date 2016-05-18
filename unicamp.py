@@ -5,23 +5,20 @@ import os
 import mechanize
 from bs4 import BeautifulSoup
 
+#pasta onde encontra os xmls
+diretorio = 'BDTD_UNICAMP/'
+#array para armazenar todos os arquivos encontrado no diretorio
 files = []
-for file in os.listdir('BDTD_UNICAMP/'):
+for file in os.listdir(diretorio):
     if file.endswith(".xml"):
         files.append(file)
 
-def escrever_arquivo(array):
-		with io.open ('3/tesL22.csv', 'ab') as fp:
-		    writer = csv.writer(fp, delimiter=';')
-		    writer.writerow(array)
-
+#array para armazernar os arquivo nao encontrados
 errors = []
-
-estrutura = ['{http://oai.ibict.br/mtd2-br/}Nome' , '{http://oai.ibict.br/mtd2-br/}Citacao' , '{http://oai.ibict.br/mtd2-br/}Lattes' , '{http://oai.ibict.br/mtd2-br/}CPF'
-,'{http://oai.ibict.br/mtd2-br/}CPF']
+#dicionario para armazernar todos os diferentes tipos de formatos encontrados
 formats = dict()
 for filexml in files:
-	with open('BDTD_UNICAMP/' + filexml, 'rt') as f:
+	with open(diretorio + filexml, 'rt') as f:
 	    tree = ElementTree.parse(f)
 	
 	root = tree.getroot()
@@ -40,8 +37,10 @@ for filexml in files:
 		table = soup.find('table', {'id': 'tabela-bases'})
 		td = table.find('td')
 		td = td.findNext('td')
+		#se o formato ja existir no dicionario soma mais um
 		if formats.has_key(td.text):
 			formats[td.text] +=  1
+		#senao cria o novo formato no dicionario
 		else:
 			formats[td.text] = 1
 		print td.text
@@ -50,8 +49,6 @@ for filexml in files:
 	except:
 		print 'error ->' , url
 		errors.append(url)
-
-
-
-#sem documento - 629
-#PDF: 45359
+		
+print formats
+print 'Sem documento: ' , len(errors)

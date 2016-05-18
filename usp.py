@@ -5,24 +5,19 @@ import os
 import mechanize
 from bs4 import BeautifulSoup
 
+#array para armazenar todos os arquivos encontrado no diretorio
+diretorio = 'BDTD_USP/'
 files = []
-for file in os.listdir('BDTD_USP/'):
+for file in os.listdir(diretorio):
     if file.endswith(".xml"):
         files.append(file)
 
-def escrever_arquivo(array):
-		with io.open ('3/tesL22.csv', 'ab') as fp:
-		    writer = csv.writer(fp, delimiter=';')
-		    writer.writerow(array)
-
+#array para armazernar os arquivo nao encontrados
 errors = []
-filesxml = []
-
-estrutura = ['{http://oai.ibict.br/mtd2-br/}Nome' , '{http://oai.ibict.br/mtd2-br/}Citacao' , '{http://oai.ibict.br/mtd2-br/}Lattes' , '{http://oai.ibict.br/mtd2-br/}CPF'
-,'{http://oai.ibict.br/mtd2-br/}CPF']
+#dicionario para armazernar todos os diferentes tipos de formatos encontrados
 formats = dict()
 for filexml in files:
-	with open('BDTD_USP/' + filexml, 'rt') as f:
+	with open(diretorio + filexml, 'rt') as f:
 	    tree = ElementTree.parse(f)
 	
 	root = tree.getroot()
@@ -38,28 +33,25 @@ for filexml in files:
 		page = br.open(url)
 		html = page.read()
 		soup = BeautifulSoup(html)
+		#leitura do html da pagina da usp para encontrar o formato do documento
 		div = soup.find('div', {'class': 'DocumentoTituloTexto2'})
 		div = div.findNext('div' , {'class' : 'DocumentoTituloTexto2'})
 		div = div.findNext('div' , {'class' : 'DocumentoTituloTexto2'})
 		if (div.findNext('div' , {'class' : 'DocumentoTituloTexto2'}) != None):
 			div = div.findNext('div' , {'class' : 'DocumentoTituloTexto2'})
-
 		texto = div.text.split('.')
 		texto = texto[1].split('(')
 		texto = texto[0]
+		#se o formato ja existir no dicionario soma mais um
 		if formats.has_key(texto):
 			formats[texto] +=  1
+		#senao cria o novo formato no dicionario
 		else:
 			formats[texto] = 1
-		#print texto
-
 
 	except:
-		print 'error ->' , url , "---" , filexml
+		print 'Documento sem arquivo associado' , url , "---" , filexml
 		errors.append(url)
-		filesxml.append(filexml)
 
-
-
-#sem documento - 629
-#PDF: 45359
+print formats
+print 'Sem documento: ' , len(errors)
