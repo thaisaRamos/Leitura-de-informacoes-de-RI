@@ -5,8 +5,9 @@ import os
 import mechanize
 from bs4 import BeautifulSoup
 
-#array para armazenar todos os arquivos encontrado no diretorio
+#pasta onde encontra os xmls
 diretorio = 'BDTD_USP/'
+#array para armazenar todos os arquivos encontrado no diretorio
 files = []
 for file in os.listdir(diretorio):
     if file.endswith(".xml"):
